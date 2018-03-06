@@ -80,7 +80,7 @@ func (s *ReCaptchaSuite) TestNewReCAPTCHA(c *C) {
 	captcha, err := NewReCAPTCHA("my secret")
 	c.Assert(err, IsNil)
 	c.Check(captcha.Secret, Equals, "my secret")
-	c.Check(captcha.reCAPTCHALink, Equals, reCAPTCHALink)
+	c.Check(captcha.ReCAPTCHALink, Equals, reCAPTCHALink)
 
 	captcha, err = NewReCAPTCHA("")
 	c.Assert(err, NotNil)
@@ -88,14 +88,14 @@ func (s *ReCaptchaSuite) TestNewReCAPTCHA(c *C) {
 
 func (s *ReCaptchaSuite) TestVerifyWithClientIP(c *C) {
 	captcha := ReCAPTCHA{
-		client: &mockSuccessClient{},
+		Client: &mockSuccessClient{},
 	}
 
 	success, err := captcha.Verify("mycode", "127.0.0.1")
 	c.Assert(err, IsNil)
 	c.Check(success, Equals, true)
 
-	captcha.client = &mockFailedClient{}
+	captcha.Client = &mockFailedClient{}
 	success, err = captcha.Verify("mycode", "127.0.0.1")
 	c.Assert(err, IsNil)
 	c.Check(success, Equals, false)
@@ -103,14 +103,14 @@ func (s *ReCaptchaSuite) TestVerifyWithClientIP(c *C) {
 
 func (s *ReCaptchaSuite) TestVerifyWithoutClientIP(c *C) {
 	captcha := ReCAPTCHA{
-		client: &mockSuccessClient{},
+		Client: &mockSuccessClient{},
 	}
 
 	success, err := captcha.VerifyNoRemoteIP("mycode")
 	c.Assert(err, IsNil)
 	c.Check(success, Equals, true)
 
-	captcha.client = &mockFailedClient{}
+	captcha.Client = &mockFailedClient{}
 	success, err = captcha.VerifyNoRemoteIP("mycode")
 	c.Assert(err, IsNil)
 	c.Check(success, Equals, false)
@@ -119,7 +119,7 @@ func (s *ReCaptchaSuite) TestVerifyWithoutClientIP(c *C) {
 func (s *ReCaptchaSuite) TestConfirm(c *C) {
 	// check that an invalid json body errors
 	captcha := ReCAPTCHA{
-		client: &mockInvalidClient{},
+		Client: &mockInvalidClient{},
 	}
 	body := reCHAPTCHARequest{Secret: "", Response: ""}
 
@@ -127,7 +127,7 @@ func (s *ReCaptchaSuite) TestConfirm(c *C) {
 	c.Assert(err, NotNil)
 	c.Check(success, Equals, false)
 
-	captcha.client = &mockUnavailableClient{}
+	captcha.Client = &mockUnavailableClient{}
 	success, err = captcha.confirm(body)
 	c.Assert(err, NotNil)
 	c.Check(success, Equals, false)

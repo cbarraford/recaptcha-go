@@ -31,9 +31,9 @@ type netClient interface {
 }
 
 type ReCAPTCHA struct {
-	client        netClient
+	Client        netClient
 	Secret        string
-	reCAPTCHALink string
+	ReCAPTCHALink string
 }
 
 // Create new ReCAPTCHA with the reCAPTCHA secret optained from https://www.google.com/recaptcha/admin
@@ -42,14 +42,14 @@ func NewReCAPTCHA(ReCAPTCHASecret string) (ReCAPTCHA, error) {
 		return ReCAPTCHA{}, fmt.Errorf("Recaptcha secret cannot be blank.")
 	}
 	return ReCAPTCHA{
-		client: &http.Client{
+		Client: &http.Client{
 			// Go http client does not set a default timeout for request, so we need
 			// to set one for worse cases when the server hang, we need to make this available in the API
 			// to make it possible this library's users to change it, for now a 10s timeout seems reasonable
 			Timeout: 10 * time.Second,
 		},
 		Secret:        ReCAPTCHASecret,
-		reCAPTCHALink: reCAPTCHALink,
+		ReCAPTCHALink: reCAPTCHALink,
 	}, nil
 }
 
@@ -69,8 +69,8 @@ func (r *ReCAPTCHA) confirm(recaptcha reCHAPTCHARequest) (Ok bool, Err error) {
 	Ok, Err = false, nil
 
 	formValue := []byte(`secret=` + recaptcha.Secret + `&response=` + recaptcha.Response)
-	response, err := r.client.Post(
-		reCAPTCHALink,
+	response, err := r.Client.Post(
+		r.ReCAPTCHALink,
 		"application/x-www-form-urlencoded; charset=utf-8",
 		bytes.NewBuffer(formValue),
 	)
